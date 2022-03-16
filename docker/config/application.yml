@@ -1,0 +1,132 @@
+# Spring-boot/cloud application configuration.
+
+# Ldap params
+# ldapScheme: ldap
+# ldapHost: georchestra-ldap
+# ldapPort: 389
+info:
+  component: Gateway Server
+  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+server:
+  port: 8080
+  http2.enabled: true
+  compression.enabled: true
+ldap:
+  enabled: true
+  url: ${ldapScheme}://${ldapHost}:${ldapPort}
+  baseDn: ${ldapBaseDn:dc=georchestra,dc=org}
+  usersRdn: ${ldapUsersRdn:ou=users}
+  userSearchFilter: ${ldapUserSearchFilter:(uid={0})}
+  rolesRdn: ${ldapRolesRdn:ou=roles}
+  rolesSearchFilter: ${ldapRolesSearchFilter:(member={0})}
+spring:
+  #config.import: file://${georchestra.datadir}/gateway.yml
+  main:
+    banner-mode: off
+    web-application-type: reactive
+  application.name: gateway-service
+  thymeleaf.cache: false
+  autoconfigure:
+    exclude:
+    - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
+  security:
+    oauth2:
+      client:
+        registration:
+          cas-oauth2:
+            client-id: oauth2
+            client-secret: oauth2
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/cas-oauth2"
+        provider:
+          cas-oauth2:
+            authorization-uri: https://dev.geo2france.fr/cas/oauth2.0/authorize
+            token-uri: https://dev.geo2france.fr/cas/oauth2.0/accessToken
+            user-info-uri: https://dev.geo2france.fr/cas/oauth2.0/profile
+            userNameAttribute: id
+  cloud:
+    gateway:
+      httpclient:
+        proxy:
+          host: proxy
+          port: 8123
+          non-proxy-hosts-pattern: '(localhost|header-.*|georchestra-.*)'
+      enabled: true
+      global-filter.websocket-routing.enabled: true
+      metrics.enabled: true
+      default-filters:
+      - SecureHeaders
+      - TokenRelay
+      - RemoveSecurityHeaders
+      # AddSecHeaders appends sec-* headers to proxied requests based on the
+      # georchestra.gateway.default-headers and georchestra.gateway.servies.<service>.headers config properties
+      - AddSecHeaders
+      global-filter:
+        websocket-routing:
+          enabled: true
+      filter:
+        secure-headers:
+          enabled: true
+          disable:
+          - content-security-policy
+          frame-options: SAMEORIGIN
+          xss-protection-header: 0
+          referrer-policy: no-referrer
+          #content-security-policy: script-src 'self' 'unsafe-eval'; object-src 'self';
+      routes:
+      - id: header
+        uri: http://header:8080/
+        predicates:
+        - Path=/header,/header/**
+management:
+  info:
+    build.enabled: true
+    java.enabled: true
+    env.enabled: true
+    git:
+      enabled: true
+      mode: full
+  endpoint:
+    info.enabled: true
+    metrics.enabled: true
+    health.enabled: true
+    health.probes.enabled: true
+    prometheus.enabled: true
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+logging:
+  level:
+    root: INFO
+    '[org.springframework]': info
+    '[org.springframework.cloud.gateway]': info
+    '[org.springframework.security]': debug
+    #'[org.springframework.security.oauth2]': debug
+    '[org.georchestra.gateway]': info
+georchestra:
+  gateway:
+    default-headers:
+      # Default security headers to append to proxied requests
+      proxy: true
+      username: true
+      roles: true
+      org: true
+      orgname: true
+    global-access-rules:
+    - intercept-url: ".*/ogcproxy/.*"
+      allowed-roles: NO_ONE
+    - intercept-url: /testPage
+      anonymous: false
+      allowed-roles: USER
+    - intercept-url: ".*?login.*"
+      allowed-roles: USER,GN_EDITOR,GN_REVIEWER,GN_ADMIN,ADMINISTRATOR,SUPERUSER,ORGADMIN
+    - intercept-url:
+      - "/.*"
+      - "/proxy/?url=.*"
+      anonymous: true
+    services:
+      header:
+        target: http://header:8080/header/
+        access-rules:
+        - intercept-url: /header/.*
+          anonymous: true

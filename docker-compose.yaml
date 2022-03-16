@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  georchestra-gateway:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: georchestra-gateway:latest
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dgeorchestra.datadir=/etc/georchestra -Dspring.config.location=/etc/georchestra/application.yml -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8123 -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=0.0.0.0:5005
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    volumes:
+      - ./docker/config:/etc/georchestra
+
+  header:
+    image: georchestra/header:latest
+
+  proxy:
+    build:
+      context: docker/proxy
