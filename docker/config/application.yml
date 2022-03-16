@@ -34,8 +34,8 @@ spring:
       client:
         registration:
           cas-oauth2:
-            client-id: oauth2
-            client-secret: oauth2
+            client-id: external-oauth2
+            client-secret: aaaa
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/cas-oauth2"
         provider:
