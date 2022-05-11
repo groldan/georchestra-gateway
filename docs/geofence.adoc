@@ -13,10 +13,11 @@ sequenceDiagram
   participant GeoFenceConfiguration
   
   Gateway->>+WMS: ?request=GetMap&layer=name&...
+  note right of Gateway: sec-username: test@gdi.de, sec-roles: ROLE_GDI_PLANER_EXTERNAL
   WMS->>+SecureCatalog: getLayer(name)
   SecureCatalog->>+CatalogImpl: getLayer(name)
   CatalogImpl-->>-SecureCatalog: LayerInfo
-  SecureCatalog->>SecureCatalog: user() Authentication
+  SecureCatalog->>SecureCatalog: user() Authentication[roles: ROLE_GDI_PLANER_EXTERNAL]
   
   SecureCatalog->>+GeofenceAccessManager: getAccessLimits(Authentication, LayerInfo)
   GeofenceAccessManager->>+GeofenceAccessManager: buildRuleFilter()
@@ -28,7 +29,8 @@ sequenceDiagram
   GeofenceAccessManager->>-GeofenceAccessManager: RuleFilter
   
   GeofenceAccessManager->>+RuleReaderService: getAccessInfo(RuleFilter)
-  RuleReaderService->>RuleDAO: find rules (user: Any, role: RuleFilter's role)
+  RuleReaderService->>+RuleDAO: find rules (user: Any, role: RuleFilter's role)
+  RuleDAO-->>-RuleReaderService: List<Rule>
   RuleReaderService->>RuleReaderService: Create AccessInfo with resolved Rules
   RuleReaderService-->>-GeofenceAccessManager: AccessInfo
   
