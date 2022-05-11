@@ -28,7 +28,7 @@ sequenceDiagram
   GeofenceAccessManager->>-GeofenceAccessManager: RuleFilter
   
   GeofenceAccessManager->>+RuleReaderService: getAccessInfo(RuleFilter)
-  RuleReaderService->>RuleReaderService: Resolve Rules by role name in RuleFilter
+  RuleReaderService->>RuleDAO: find rules (user: Any, role: RuleFilter's role)
   RuleReaderService->>RuleReaderService: Create AccessInfo with resolved Rules
   RuleReaderService-->>-GeofenceAccessManager: AccessInfo
   
