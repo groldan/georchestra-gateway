@@ -20,13 +20,9 @@ sequenceDiagram
   SecureCatalog->>SecureCatalog: user() Authentication[roles: ROLE_GDI_PLANER_EXTERNAL]
   
   SecureCatalog->>+GeofenceAccessManager: getAccessLimits(Authentication, LayerInfo)
-  GeofenceAccessManager->>+GeofenceAccessManager: buildRuleFilter()
   GeofenceAccessManager->>+GeoFenceConfiguration: filter using roles?
   GeoFenceConfiguration-->>-GeofenceAccessManager: true
-  loop for each role in Authentication
-        GeofenceAccessManager->>GeofenceAccessManager: Set first valid role to RuleFilter
-  end
-  GeofenceAccessManager->>-GeofenceAccessManager: RuleFilter
+  GeofenceAccessManager->>GeofenceAccessManager: build RuleFilter from first valid role from GeoFenceConfiguration
   
   GeofenceAccessManager->>+RuleReaderService: getAccessInfo(RuleFilter)
   RuleReaderService->>+RuleDAO: find rules (user: Any, role: RuleFilter's role)
