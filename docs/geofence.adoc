@@ -1,0 +1,74 @@
+= GeoFence Integration
+
+=== GeoFence resource access manager 
+
+[source,mermaid]
+----
+sequenceDiagram
+  actor Gateway
+  participant WMS
+  participant SecureCatalog
+  participant CatalogImpl
+  participant GeofenceAccessManager
+  participant GeoFenceConfiguration
+  
+  Gateway->>+WMS: ?request=GetMap&layer=name&...
+  WMS->>+SecureCatalog: getLayer(name)
+  SecureCatalog->>+CatalogImpl: getLayer(name)
+  CatalogImpl-->>-SecureCatalog: LayerInfo
+  SecureCatalog->>SecureCatalog: user() Authentication
+  
+  SecureCatalog->>+GeofenceAccessManager: getAccessLimits(Authentication, LayerInfo)
+  GeofenceAccessManager->>+GeofenceAccessManager: buildRuleFilter()
+  GeofenceAccessManager->>+GeoFenceConfiguration: filter using roles?
+  GeoFenceConfiguration-->>-GeofenceAccessManager: true
+  loop for each role in Authentication
+        GeofenceAccessManager->>GeofenceAccessManager: Set first valid role to RuleFilter
+  end
+  GeofenceAccessManager->>-GeofenceAccessManager: RuleFilter
+  
+  GeofenceAccessManager->>+RuleReaderService: getAccessInfo(RuleFilter)
+  RuleReaderService->>RuleReaderService: Resolve Rules by role name in RuleFilter
+  RuleReaderService->>RuleReaderService: Create AccessInfo with resolved Rules
+  RuleReaderService-->>-GeofenceAccessManager: AccessInfo
+  
+  GeofenceAccessManager-->>-SecureCatalog: DataAccessLimits
+  
+  SecureCatalog->>SecureCatalog: checkAccess(LayerInfo, DataAccessLimits)
+  SecureCatalog-->>-WMS: SecuredLayerInfo
+  WMS->WMS: render(layer)
+  WMS-->>-Gateway: image
+----
+
+[source,mermaid]
+----
+classDiagram
+  direction TD
+  ResourceAccessManager <|-- GeofenceAccessManager
+  CatalogImpl <|-- Catalog
+  SecureCatalog <|-- Catalog
+  SecureCatalog --> ResourceAccessManager
+  LayerInfo <|-- SecuredLayerInfo
+  class ResourceAccessManager{
+    <<interface>>
+    getAccessLimits(Authentication user, LayerInfo layer) DataAccessLimits
+  }
+  class DataAccessLimits{
+    getMode() CatalogMode
+    getReadFilter() Filter
+  }
+  class Catalog{
+    <<interface>>
+    getLayer(String name) LayerInfo
+  }
+  class LayerInfo{
+    <<interface>>
+  }
+  class CatalogMode{
+    <<enumeration>>
+    HIDE
+    CHALLENGE
+    MIXED
+}
+----
+
