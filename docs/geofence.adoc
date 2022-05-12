@@ -70,3 +70,38 @@ classDiagram
 }
 ----
 
+
+Use case: Authbot scheduled reconcile
+
+[source,mermaid]
+----
+sequenceDiagram
+  participant bot as AuthBot
+  participant eam as FibreEAM
+  participant gs as GeoServer
+  participant geofence as Geofence
+  
+  loop Every scheduled period
+    bot->>eam: get all rules by company
+    eam-->>bot: {companyId, rules[]}+
+    bot->>bot: build Gefence rules
+    bot->>gs: get all Roles
+    gs-->>bot: [ROLE_1,..., GROUP_<companyId>, ...]
+    loop for each missing company->role name
+      bot->>gs: create company role GROUP_<companyId>
+    end
+    loop for each company
+      bot->>geofence: get all rules for GROUP_<companyId>
+      geofence-->>bot: Rule[]
+      bot->>bot: compute mismatched rules
+      loop for each mismatched rule
+        bot->>geofence: create or update rule
+      end
+    end
+  end
+----
+
+
+
+
+
