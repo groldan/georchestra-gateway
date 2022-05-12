@@ -71,7 +71,7 @@ classDiagram
 ----
 
 
-Use case: Authbot scheduled reconcile
+== Use case: Authbot scheduled reconcile
 
 [source,mermaid]
 ----
