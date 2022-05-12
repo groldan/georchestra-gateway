@@ -102,6 +102,8 @@ sequenceDiagram
 ----
 
 
-
+Remark: 
+Gateway gets the `companyId` as a non-standard OIDC claim.
+It will map it to a user role `GROUP_<companyId>`
 
 
