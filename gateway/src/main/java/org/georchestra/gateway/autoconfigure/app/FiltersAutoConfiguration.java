@@ -22,6 +22,9 @@ import org.georchestra.gateway.filter.global.ResolveTargetGlobalFilter;
 import org.georchestra.gateway.filter.headers.HeaderFiltersConfiguration;
 import org.georchestra.gateway.model.GatewayConfigProperties;
 import org.georchestra.gateway.model.GeorchestraTargetConfig;
+import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
+import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
+import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
@@ -44,4 +47,22 @@ public class FiltersAutoConfiguration {
     public @Bean ResolveTargetGlobalFilter resolveTargetWebFilter(GatewayConfigProperties config) {
         return new ResolveTargetGlobalFilter(config);
     }
+
+    /**
+     * Custom gateway predicate factory to support matching by regular expressions
+     * on both name and value of query parameters
+     */
+    public @Bean RegExpQueryRoutePredicateFactory regExpQueryRoutePredicateFactory() {
+        return new RegExpQueryRoutePredicateFactory();
+    }
+
+    /** Allows to enable routes only if a given spring profile is enabled */
+    public @Bean RouteProfileGatewayFilterFactory routeProfileGatewayFilterFactory() {
+        return new RouteProfileGatewayFilterFactory();
+    }
+
+    public @Bean StripBasePathGatewayFilterFactory stripBasePathGatewayFilterFactory() {
+        return new StripBasePathGatewayFilterFactory();
+    }
+
 }
