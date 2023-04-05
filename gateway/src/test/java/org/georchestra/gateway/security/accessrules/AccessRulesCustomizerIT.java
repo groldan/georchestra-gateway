@@ -157,11 +157,11 @@ class AccessRulesCustomizerIT {
 
         testClient.get().uri("/mapfishapp/ogcproxy")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
 
         testClient.get().uri("/mapfishapp/ogcproxy/somethingprivate")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
 
         testClient.get().uri("/mapfishapp/somethingpublic")//
                 .exchange()//
@@ -211,11 +211,11 @@ class AccessRulesCustomizerIT {
 
         testClient.get().uri("/import")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
 
         testClient.get().uri("/import/any/thing")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
     }
 
     /**
@@ -298,11 +298,11 @@ class AccessRulesCustomizerIT {
 
         testClient.get().uri("/analytics")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
 
         testClient.get().uri("/analytics/any/thing")//
                 .exchange()//
-                .expectStatus().isFound();
+                .expectStatus().isUnauthorized();
     }
 
     /**

@@ -37,7 +37,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.ServerWebExchange;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,16 +68,6 @@ public class GeorchestraGatewayApplication {
         return Mono.just(ret);
         // return principal == null ? Mono.empty() :
         // Mono.just(Map.of(principal.getClass().getCanonicalName(), principal));
-    }
-
-    @GetMapping(path = "/login", produces = "text/html")
-    public Mono<Rendering.Builder<?>> login(Authentication principal, ServerWebExchange exchange) {
-        return Mono.just(Rendering.view("login"));
-    }
-
-    @GetMapping(path = "/logout", produces = "text/html")
-    public Mono<Rendering.Builder<?>> logout(Authentication principal, ServerWebExchange exchange) {
-        return Mono.just(Rendering.view("logout"));
     }
 
     @EventListener(ApplicationReadyEvent.class)
