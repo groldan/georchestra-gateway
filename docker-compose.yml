@@ -50,7 +50,16 @@ services:
     volumes:
       - datadir:/etc/georchestra
     environment:
-      - JAVA_TOOL_OPTIONS=-Dgeorchestra.datadir=/etc/georchestra -Dspring.profiles.active=docker -Xmx512M
+      - JAVA_TOOL_OPTIONS=-Dgeorchestra.datadir=/etc/georchestra -Xmx512M
+      # env variables expected by datadir/gateway/security.yaml
+      # for the googleauth profile:
+      - GOOGLE_CLIENT_ID=539019376623-98bfblg8t9efd507ia4qv0v7r79afits.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      # for the githubauth profile:
+      - GITHUB_CLIENT_ID=Iv1.412513e628b94312
+      - GITHUB_CLIENT_SECRET=423a3c62e00b6eecd6edb69737f536e37feda57e
+      # enable google and github OAuth2
+      - SPRING_PROFILES_ACTIVE=docker,googleauth,githubauth
     restart: always
     ports:
       - 8080:8080
