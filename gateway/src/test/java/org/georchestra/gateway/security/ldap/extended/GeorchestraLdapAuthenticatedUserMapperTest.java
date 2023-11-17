@@ -19,8 +19,8 @@
 
 package org.georchestra.gateway.security.ldap.extended;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.georchestra.security.api.OrganizationsApi;
 import org.georchestra.security.api.UsersApi;
 import org.georchestra.security.model.GeorchestraUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,12 +54,15 @@ class GeorchestraLdapAuthenticatedUserMapperTest {
 
     private GeorchestraLdapAuthenticatedUserMapper mapper;
     private UsersApi mockUsers;
+    private OrganizationsApi mockOrgs;
 
     @BeforeEach
     void before() {
         mockUsers = mock(UsersApi.class);
+        mockOrgs = mock(OrganizationsApi.class);
         when(mockUsers.findByUsername(anyString())).thenReturn(Optional.empty());
-        DemultiplexingUsersApi demultiplexingUsers = new DemultiplexingUsersApi(Map.of("default", mockUsers));
+        DemultiplexingUsersApi demultiplexingUsers = new DemultiplexingUsersApi(Map.of("default", mockUsers),
+                Map.of("default", mockOrgs));
         mapper = new GeorchestraLdapAuthenticatedUserMapper(demultiplexingUsers);
     }
 
@@ -98,7 +102,8 @@ class GeorchestraLdapAuthenticatedUserMapperTest {
 
     @Test
     void testLdapUserDetails() {
-        GeorchestraUser expected = mock(GeorchestraUser.class);
+        GeorchestraUser expected = new GeorchestraUser();
+        expected.setUsername("testuser");
         LdapUserDetailsImpl principal = mock(LdapUserDetailsImpl.class);
         when(principal.getUsername()).thenReturn("ldapuser");
         when(mockUsers.findByUsername(eq("ldapuser"))).thenReturn(Optional.of(expected));
@@ -107,7 +112,8 @@ class GeorchestraLdapAuthenticatedUserMapperTest {
         Optional<GeorchestraUser> resolve = mapper
                 .resolve(new GeorchestraUserNamePasswordAuthenticationToken("default", auth));
         assertNotNull(resolve);
-        assertSame(expected, resolve.orElseThrow());
+        GeorchestraUser actual = resolve.orElseThrow();
+        assertEquals(expected, actual);
 
         verify(mockUsers, atLeastOnce()).findByUsername(eq("ldapuser"));
         verifyNoMoreInteractions(mockUsers);

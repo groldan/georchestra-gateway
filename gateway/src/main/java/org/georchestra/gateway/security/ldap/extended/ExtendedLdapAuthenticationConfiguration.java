@@ -32,6 +32,7 @@ import org.georchestra.ds.orgs.OrgsDaoImpl;
 import org.georchestra.ds.roles.RoleDao;
 import org.georchestra.ds.roles.RoleDaoImpl;
 import org.georchestra.ds.roles.RoleProtected;
+import org.georchestra.ds.security.OrganizationsApiImpl;
 import org.georchestra.ds.security.UserMapper;
 import org.georchestra.ds.security.UserMapperImpl;
 import org.georchestra.ds.security.UsersApiImpl;
@@ -42,6 +43,7 @@ import org.georchestra.gateway.security.GeorchestraUserMapperExtension;
 import org.georchestra.gateway.security.ldap.LdapConfigProperties;
 import org.georchestra.gateway.security.ldap.LdapConfigProperties.Server;
 import org.georchestra.gateway.security.ldap.basic.LdapAuthenticatorProviderBuilder;
+import org.georchestra.security.api.OrganizationsApi;
 import org.georchestra.security.api.UsersApi;
 import org.georchestra.security.model.GeorchestraUser;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -107,25 +109,44 @@ public class ExtendedLdapAuthenticationConfiguration {
 
     @Bean
     DemultiplexingUsersApi demultiplexingUsersApi(List<ExtendedLdapConfig> configs) {
-        Map<String, UsersApi> targets = new HashMap<>();
+        Map<String, UsersApi> usersByConfigName = new HashMap<>();
+        Map<String, OrganizationsApi> orgsByConfigName = new HashMap<>();
         for (ExtendedLdapConfig config : configs) {
             try {
-                targets.put(config.getName(), createUsersApi(config));
+                LdapTemplate ldapTemplate = ldapTemplate(config);
+                AccountDao accountsDao = accountsDao(ldapTemplate, config);
+                UsersApi usersApi = createUsersApi(config, ldapTemplate, accountsDao);
+                OrganizationsApi orgsApi = createOrgsApi(config, ldapTemplate, accountsDao);
+                usersByConfigName.put(config.getName(), usersApi);
+                orgsByConfigName.put(config.getName(), orgsApi);
             } catch (Exception ex) {
                 throw new BeanInitializationException(
                         "Error creating georchestra users api for ldap config " + config.getName(), ex);
             }
         }
-        return new DemultiplexingUsersApi(targets);
+        return new DemultiplexingUsersApi(usersByConfigName, orgsByConfigName);
     }
 
     //////////////////////////////////////////////
     /// Low level LDAP account management beans
     //////////////////////////////////////////////
 
-    private UsersApi createUsersApi(ExtendedLdapConfig ldapConfig) throws Exception {
-        final LdapTemplate ldapTemplate = ldapTemplate(ldapConfig);
-        final AccountDao accountsDao = accountsDao(ldapTemplate, ldapConfig);
+    private OrganizationsApi createOrgsApi(ExtendedLdapConfig ldapConfig, LdapTemplate ldapTemplate,
+            AccountDao accountsDao) throws Exception {
+        OrganizationsApiImpl impl = new OrganizationsApiImpl();
+        OrgsDaoImpl orgsDao = new OrgsDaoImpl();
+        orgsDao.setLdapTemplate(ldapTemplate);
+        orgsDao.setAccountDao(accountsDao);
+        orgsDao.setBasePath(ldapConfig.getBaseDn());
+        orgsDao.setOrgSearchBaseDN(ldapConfig.getOrgsRdn());
+        orgsDao.setPendingOrgSearchBaseDN(ldapConfig.getPendingOrgsRdn());
+        orgsDao.setOrgTypeValues("");// TODO: @Pierre, what should go here?
+        impl.setOrgsDao(orgsDao);
+        return impl;
+    }
+
+    private UsersApi createUsersApi(ExtendedLdapConfig ldapConfig, LdapTemplate ldapTemplate, AccountDao accountsDao)
+            throws Exception {
         final RoleDao roleDao = roleDao(ldapTemplate, ldapConfig, accountsDao);
 
         final UserMapper ldapUserMapper = createUserMapper(roleDao);

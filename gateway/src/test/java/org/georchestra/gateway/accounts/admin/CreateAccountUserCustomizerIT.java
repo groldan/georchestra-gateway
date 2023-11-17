@@ -161,7 +161,6 @@ public class CreateAccountUserCustomizerIT {
                 .expectStatus()//
                 .is2xxSuccessful()//
                 .expectBody()//
-                .jsonPath("$.GeorchestraUser").isNotEmpty()
-                .jsonPath("$.GeorchestraUser.organization").isEqualTo(null);
+                .jsonPath("$.GeorchestraUser").isNotEmpty().jsonPath("$.GeorchestraUser.organization").isEqualTo(null);
     }
 }

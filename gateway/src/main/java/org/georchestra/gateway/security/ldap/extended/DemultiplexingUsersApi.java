@@ -19,14 +19,17 @@
 
 package org.georchestra.gateway.security.ldap.extended;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.georchestra.security.api.OrganizationsApi;
 import org.georchestra.security.api.UsersApi;
 import org.georchestra.security.model.GeorchestraUser;
+import org.georchestra.security.model.Organization;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -48,10 +51,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class DemultiplexingUsersApi {
 
-    private final @NonNull Map<String, UsersApi> targets;
+    private final @NonNull Map<String, UsersApi> usersByConfigName;
+    private final @NonNull Map<String, OrganizationsApi> orgsByConfigName;
 
     public @VisibleForTesting Set<String> getTargetNames() {
-        return new HashSet<>(targets.keySet());
+        return new HashSet<>(usersByConfigName.keySet());
     }
 
     /**
@@ -64,15 +68,28 @@ class DemultiplexingUsersApi {
      * @return the {@link GeorchestraUser} returned by the service's
      *         {@link UsersApi}, or {@link Optional#empty() empty} if not found
      */
-    public Optional<GeorchestraUser> findByUsername(@NonNull String serviceName, @NonNull String username) {
-        UsersApi target = targets.get(serviceName);
-        Objects.requireNonNull(target, () -> "No UsersApi found for config named " + serviceName);
-        return target.findByUsername(username);
+    public Optional<ExtendedGeorchestraUser> findByUsername(@NonNull String serviceName, @NonNull String username) {
+        UsersApi usersApi = usersByConfigName.get(serviceName);
+        Objects.requireNonNull(usersApi, () -> "No UsersApi found for config named " + serviceName);
+        Optional<GeorchestraUser> user = usersApi.findByUsername(username);
+
+        return extend(serviceName, user);
     }
 
-    public Optional<GeorchestraUser> findByEmail(@NonNull String serviceName, @NonNull String email) {
-        UsersApi target = targets.get(serviceName);
-        Objects.requireNonNull(target, () -> "No UsersApi found for config named " + serviceName);
-        return target.findByEmail(email);
+    public Optional<ExtendedGeorchestraUser> findByEmail(@NonNull String serviceName, @NonNull String email) {
+        UsersApi usersApi = usersByConfigName.get(serviceName);
+        Objects.requireNonNull(usersApi, () -> "No UsersApi found for config named " + serviceName);
+        Optional<GeorchestraUser> user = usersApi.findByEmail(email);
+        return extend(serviceName, user);
     }
+
+    private Optional<ExtendedGeorchestraUser> extend(String serviceName, Optional<GeorchestraUser> user) {
+        OrganizationsApi orgsApi = orgsByConfigName.get(serviceName);
+        Objects.requireNonNull(orgsApi, () -> "No OrganizationsApi found for config named " + serviceName);
+
+        Organization org = user.map(GeorchestraUser::getOrganization).flatMap(orgsApi::findByShortName).orElse(null);
+
+        return user.map(ExtendedGeorchestraUser::new).map(u -> u.setOrg(org));
+    }
+
 }

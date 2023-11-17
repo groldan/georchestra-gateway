@@ -18,9 +18,12 @@
  */
 package org.georchestra.gateway.security;
 
+import org.georchestra.gateway.model.GeorchestraOrganizations;
 import org.georchestra.gateway.model.GeorchestraTargetConfig;
 import org.georchestra.gateway.model.GeorchestraUsers;
+import org.georchestra.gateway.security.ldap.extended.ExtendedGeorchestraUser;
 import org.georchestra.security.model.GeorchestraUser;
+import org.georchestra.security.model.Organization;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter;
@@ -76,7 +79,14 @@ public class ResolveGeorchestraUserGlobalFilter implements GlobalFilter, Ordered
                 .map(Authentication.class::cast)//
                 .map(resolver::resolve)//
                 .map(user -> GeorchestraUsers.store(exchange, user.orElse(null)))//
-                .defaultIfEmpty(exchange)//
+                .map(user -> {
+                    if (user instanceof ExtendedGeorchestraUser) {
+                        ExtendedGeorchestraUser eu = (ExtendedGeorchestraUser) user;
+                        Organization org = eu.getOrg();
+                        GeorchestraOrganizations.store(exchange, org);
+                    }
+                    return user;
+                }).defaultIfEmpty(exchange)//
                 .flatMap(chain::filter);
     }
 
