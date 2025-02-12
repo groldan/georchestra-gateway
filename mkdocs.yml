@@ -1,0 +1,106 @@
+site_name: geOrchestra Gateway Documentation
+site_description: Documentation for the geOrchestra Gateway service
+site_author: geOrchestra Community
+copyright: "&copy; 2009-2025 geOrchestra Community"
+repo_url: https://github.com/georchestra/georchestra-gateway
+edit_uri: edit/main/docs/
+site_url: https://docs.georchestra.org/gateway/
+
+theme:
+  name: material
+  logo: assets/images/georchestra-logo.svg
+  favicon: assets/images/favicon.ico
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: Roboto Mono
+  custom_dir: docs/overrides
+  icon:
+    repo: fontawesome/brands/github
+  
+extra_css:
+  - assets/stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - User Guide:
+    - user_guide/index.md
+    - Installation: user_guide/installation.md
+    - Configuration: user_guide/configuration.md
+    - Authentication: user_guide/authentication.md
+    - Proxying Applications: user_guide/proxying_applications.md
+    - Access Rules: user_guide/access_rules.md
+    - Headers: user_guide/headers.md
+    - Logging: user_guide/logging.md
+    - UI Customization: user_guide/ui_customization.md
+    - Migration Guide: user_guide/migration.md
+  - Technical Documentation:
+    - arc42/index.md
+    - Introduction: arc42/introduction.md
+    - Architecture Goals: arc42/architecture_goals.md
+    - Context View: arc42/context_view.md
+    - Container View: arc42/container_view.md
+    - Component View: arc42/component_view.md
+    - Runtime View: arc42/runtime_view.md
+    - Deployment View: arc42/deployment_view.md
+    - Crosscutting Concerns: arc42/crosscutting.md
+    - Quality Requirements: arc42/quality_requirements.md
+    - Risks and Technical Debt: arc42/risks.md
+    - Glossary: arc42/glossary.md
+    - Using Structurizr: arc42/using-structurizr.md
+  - Developer Guide:
+    - developer_guide/index.md
+    - Building: developer_guide/building.md
+    - Code Style: developer_guide/code_style.md
+    - Project Structure: developer_guide/project_structure.md
+    - Testing: developer_guide/testing.md
+    - Custom Filters: developer_guide/custom_filters.md
+    - Authentication: developer_guide/authentication.md
+    - Logging: developer_guide/logging.md
+    - WebFlux MDC Propagation: developer_guide/webflux_mdc.md
+    - Contributing: developer_guide/contributing.md
+  - About: about.md
+
+plugins:
+  - search

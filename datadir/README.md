@@ -1,59 +1,64 @@
-# geOrchestra default datadir
+# geOrchestra Gateway Development Datadir
 
-This repository contains the default configuration files for geOrchestra modules, and can be used as a reference to build your own "geOrchestra datadir". We call this a "datadir" for the similarity with the well-known GeoServer and GeoNetwork datadirs, but this directory is not meant to host geographic data.
+This directory contains development configuration files for the geOrchestra Gateway module. These files are intended **for development purposes only** and should not be used in production environments.
 
-At startup, geOrchestra applications running inside a servlet container having the extra `georchestra.datadir` parameter, will initialize themselves with the configuration contained in the directory that this parameters points to.
+For production, you should use the official geOrchestra datadir from the [georchestra/datadir](https://github.com/georchestra/datadir) repository.
 
-Debian packages already come with their own version of the datadir, but the WARs we provide don't. 
-That is the reason why this directory is provided here.
+The structure is similar to the production datadir, but contains development-specific settings and is used with the development Docker Compose files in the repository root.
 
+## Development Configuration
 
-## Usage
+This datadir contains configuration files used by the Gateway and related services when running with the development Docker Compose configurations (`docker-compose.yml` and `docker-compose-preauth.yaml`).
 
-In order to use this datadir:
- * simply clone this repository (typically in `/etc/georchestra` but it might be elsewhere)
- * **checkout the branch matching your geOrchestra version** (eventually prefixed with `docker-` if you use [official docker images](https://hub.docker.com/u/georchestra))
- * customize the different configuration files (see below)
- * launch your servlet container with an extra parameter, typically `georchestra.datadir=/etc/georchestra`
-
-For instance, with tomcat, you may create a `${CATALINA_HOME}/bin/setenv.sh` file with:
-```
-export CATALINA_OPTS="${CATALINA_OPTS} -Dgeorchestra.datadir="/etc/georchestra"
-```
-
-Note that if you are developing, and running the servlet container with the Maven embedded Jetty server, by default, the datadir will be set to `/etc/georchestra/`, and you only need to launch `mvn jetty:run`. If you need to point to another location, say `/etc/anotherlocation/`, you will have to pass it to Jetty: `mvn -Dgeorchestra.datadir=/etc/anotherlocation jetty:run`.
-
-## 3-steps editing
-
-Before using this datadir, you should at least change the default FQDN (`georchestra-127-0-1-1.traefik.me`) for yours.
-This can be done very easily with eg:
-```
-cd /etc/georchestra
-find ./ -type f -exec sed -i 's/georchestra-127-0-1-1.traefik.me/my.fqdn/' {} \;
-```
-...where `my.fqdn` is your server's FQDN.
+At startup, the Gateway will read this configuration when the `georchestra.datadir` parameter is set, which happens automatically when using the provided Docker Compose files.
 
 
-Next thing to do, for security, is changing the password of the `geoserver_privileged_user`, that is internally used by several geOrchestra modules:
-```
-cd /etc/georchestra
-find ./ -type f -exec sed -i 's/gerlsSnFd6SmM/'$(pwgen 16 1)'/' {} \;
-```
-Remember to change it in your LDAP too !
+## Development Usage
+
+When using the development Docker Compose files, this datadir is automatically mounted into the containers and used for configuration. No additional setup is required.
+
+If you want to run the Gateway in development mode outside of Docker:
+
+1. Run the Gateway with the datadir parameter pointing to this directory:
+   ```bash
+   # Using Maven
+   mvn spring-boot:run -Dgeorchestra.datadir=/path/to/datadir
+   
+   # Or with Java
+   java -Dgeorchestra.datadir=/path/to/datadir -jar gateway/target/georchestra-gateway-X.Y.Z.jar
+   ```
+
+2. Configure your IDE run/debug configuration to include the parameter:
+   ```
+   -Dgeorchestra.datadir=/path/to/datadir
+   ```
+
+Remember that these configurations are only suitable for development and should not be used in production environments.
+
+## Development Customization
+
+This datadir is pre-configured for development purposes with a default setup. However, you may want to customize some settings:
+
+1. **FQDN**: The default FQDN is configured for local development. If you need to change it for your dev environment:
+   ```bash
+   cd /path/to/datadir
+   find ./ -type f -exec sed -i 's/georchestra-127-0-1-1.traefik.me/my.dev.fqdn/' {} \;
+   ```
+
+2. **Security Passwords**: For security in development, you may want to change default passwords. However, remember that this is a development environment and should never be exposed publicly.
+
+3. **Configuration Files**: Explore and modify the configuration files in the datadir to experiment with different Gateway configurations.
+
+Remember to restart the Gateway service after making changes to the datadir.
 
 
-Finally, you should head to [ReCAPTCHA](https://www.google.com/recaptcha/) and get an account for your service.
-Once you're done, fill in the public and private keys in the [console/console.properties](console/console.properties) file.
+## Development vs Production
 
-**Restart your tomcat or jetty services when done with datadir editing**.
+For a production environment, you should:
 
+1. Use the official [geOrchestra datadir repository](https://github.com/georchestra/datadir)
+2. Follow the [Installation Guide](https://docs.georchestra.org/gateway/user_guide/installation/) for proper deployment
+3. Use the official [geOrchestra Docker Compose project](https://github.com/georchestra/docker) if deploying with Docker
 
-## Notes
-
-There are plenty of other configuration options available, so feel free to browse the sub-folders of this repository and read the comments to make your mind.
-
-We do recommend that you:
- * change your SDI logo, with [header/logo.png](header/logo.png)
- * update the viewer config with [mapfishapp/js/GEOR_custom.js](mapfishapp/js/GEOR_custom.js)
- * translate the console ([console/templates](console/templates)) and extractor ([extractorapp/templates](extractorapp/templates)) email templates to your language, and change the default language in [default.properties](./default.properties).
+The docker-compose files in the repository root and this datadir are specifically designed for developer convenience and should not be used for any production deployment.
 

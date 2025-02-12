@@ -1,95 +1,131 @@
-# geOrchestra application gateway service
+# geOrchestra Gateway
 
-## Features
+<div align="center">
+  <img src="docs/assets/images/georchestra-logo.svg" alt="geOrchestra Logo" width="300"/>
+  <h3>Modern, Secure, and Flexible Gateway for the geOrchestra SDI Platform</h3>
+</div>
 
-- [x] OAuth2 and OpenID Connect authentication and authorization
-- [x] LDAP authentication and authorization
-- [x] HTTP/2
-- [x] Websockets
+<p align="center">
+  <a href="https://github.com/georchestra/georchestra-gateway/actions"><img src="https://github.com/georchestra/georchestra-gateway/actions/workflows/maven.yml/badge.svg" alt="Build Status"></a>
+  <a href="https://www.georchestra.org/georchestra-gateway/"><img src="https://img.shields.io/badge/docs-latest-blue" alt="Documentation"></a>
+  <a href="https://github.com/georchestra/georchestra-gateway/blob/main/LICENSE.txt"><img src="https://img.shields.io/github/license/georchestra/georchestra-gateway" alt="License"></a>
+</p>
 
-## Configuration
+## Overview
 
-### LDAP Authentication
+The geOrchestra Gateway is a Spring Cloud Gateway-based service that provides a secure, central entry point to all geOrchestra applications. It replaces the previous security-proxy component, offering enhanced flexibility, modern authentication methods, and improved performance.
 
-LDAP Authentication is enabled and set up through the following
-configuration properties in `application.yml`:
+## Key Features
+
+- **Multiple Authentication Methods**
+  - ✅ OAuth2 and OpenID Connect
+  - ✅ LDAP Authentication
+  - ✅ Header-based Pre-authentication
+  
+- **Modern Web Standards**
+  - ✅ HTTP/2 Support
+  - ✅ WebSocket Support
+  - ✅ Spring WebFlux Reactive Stack
+  
+- **Security**
+  - ✅ Role-Based Access Control
+  - ✅ Flexible Header Management
+  - ✅ Centralized Security Policies
+  
+- **Developer Experience**
+  - ✅ Comprehensive Documentation
+  - ✅ Easy Configuration
+  - ✅ Docker-Ready
+
+## Documentation
+
+Visit our [comprehensive documentation](https://www.georchestra.org/georchestra-gateway/) to learn more about installation, configuration, and development.
+
+## Quick Start
+
+### Using Docker Compose
+
+The Gateway is available as part of the geOrchestra Docker Compose setup:
+
+```bash
+git clone https://github.com/georchestra/docker.git
+cd docker
+docker-compose up -d
+```
+
+### Configuration
+
+The Gateway provides flexible configuration options through YAML files:
 
 ```yaml
-georchestra.security.ldap:
-  enabled: true
-  url: ${ldapScheme}://${ldapHost}:${ldapPort}
-  baseDn: ${ldapBaseDn:dc=georchestra,dc=org}
-  usersRdn: ${ldapUsersRdn:ou=users}
-  userSearchFilter: ${ldapUserSearchFilter:(uid={0})}
-  rolesRdn: ${ldapRolesRdn:ou=roles}
-  rolesSearchFilter: ${ldapRolesSearchFilter:(member={0})}
+georchestra:
+  gateway:
+    # Your configuration goes here
+  security:
+    ldap:
+      enabled: true
+      url: ldap://ldap:389
+      # Additional LDAP configuration
 ```
 
-If `georchestra.security.ldap.enabled` is `false`,the log-in page won't show the username/password form inputs.
+For detailed configuration options, see the [Configuration Guide](https://www.georchestra.org/georchestra-gateway/user_guide/configuration/).
 
-## Data directory property sources
+## Building from Source
 
-Routes and other relevant configuration properties are loaded from geOrchestra "data directory"'s
-`default.properties` and `gateway/gateway.yaml`.
+### Prerequisites
 
-The location of the data directory is picked up from the `georchestra.datadir` environment property,
-and the additional property sources by means of spring-boot's 
-`spring.config.import` environment property, like in:
-`spring.config.import: ${georchestra.datadir}/default.properties,${georchestra.datadir}/gateway/gateway.yaml`.
+- Java 21+
+- Maven 3.8+
+- Docker (optional, for building images)
 
-## Build
+### Build Commands
 
-```
+Build with all tests:
+```bash
 make
 ```
 
-Builds geOrchestra submodule dependencies, the gateway, runs tests,
-and builds the docker image.
-
-### Build dependencies only
-
-```
-make deps
-```
-
-### Build and install without tests
-
-```
+Build and install without tests:
+```bash
 make install
 ```
 
-### Run tests
-
-```
+Run tests:
+```bash
 make test
 ```
 
-## Docker image build
-
-```
+Build Docker image:
+```bash
 make docker
 ```
 
-Or manually:
-
+Build Debian package:
+```bash
+make deb
 ```
-./mvnw -f gateway [-DimageTag=<tag>] spring-boot:build-image
+
+## Documentation Development
+
+To work on the documentation locally:
+
+```bash
+./setup_mkdocs.sh
+./run_mkdocs.sh
 ```
 
-The docker image is created by the `spring-boot-maven-plugin` under the 
-`docker` maven profile, which is active by default.
+Then visit http://127.0.0.1:8000 in your browser.
 
-`spring-boot-maven-plugin` builds an OCI compliant image based on Packeto buildpacks.
+## Contributing
 
+We welcome contributions! Please see our [Contributing Guide](https://www.georchestra.org/georchestra-gateway/developer_guide/contributing/) for details.
 
-### Migrating from security-proxy
+## About geOrchestra
 
-Security proxy feature set upgrade matrix
+[geOrchestra](https://www.georchestra.org/) is a free, modular, and interoperable Spatial Data Infrastructure solution born in 2009 to meet the requirements of the INSPIRE European directive.
 
-| security-proxy | Gateway | Notes |
-| --- | --- | --- |
-| Per service URI simple routing  | <ul><li>[x] defined in `gateway.yml`</li></ul> | as traditionally defined in `targets-mapping.properties` |
-| Global and per-service `sec-*` headers | <ul><li>[ ] defined in `gateway.yml`</li></ul> | as traditionally defined in `headers-mapping.properties` |
-| Filter incoming `sec-*` headers | <ul><li>[ ] custom regex based filter</li></ul> | prevents impersonation from outside world |
-| `ogc-server-statistics` integration | <ul><li>[ ] </li></ul> |  |
-|  | <ul><li>[ ] </li></ul> |  |
+The project is governed by a Project Steering Committee (PSC) and follows the "made by people for people" philosophy, with a focus on community-driven development.
+
+## License
+
+This project is licensed under [GPL-3.0](LICENSE.txt).
