@@ -24,6 +24,7 @@
     <module>gateway</module>
   </modules>
   <properties>
+    <java.version>21</java.version>
     <revision>1.2-SNAPSHOT</revision>
     <georchestra.version>24.1-SNAPSHOT</georchestra.version>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
@@ -35,7 +36,7 @@
     <pom.fmt.skip>${fmt.skip}</pom.fmt.skip>
     <imageTag>${project.version}</imageTag>
     <spring-boot.build-image.imageName>georchestra/gateway:${imageTag}</spring-boot.build-image.imageName>
-    <lombok.version>1.18.34</lombok.version>
+    <lombok.version>1.18.36</lombok.version>
     <logback.version>1.2.13</logback.version>
   </properties>
   <dependencyManagement>
@@ -166,7 +167,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.12.1</version>
+          <version>3.14.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
