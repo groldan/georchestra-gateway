@@ -37,7 +37,6 @@
     <imageTag>${project.version}</imageTag>
     <spring-boot.build-image.imageName>georchestra/gateway:${imageTag}</spring-boot.build-image.imageName>
     <lombok.version>1.18.36</lombok.version>
-    <logback.version>1.2.13</logback.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -146,5 +145,5 @@
         </plugin>
       </plugins>
     </pluginManagement>
- </build>
+  </build>
 </project>
