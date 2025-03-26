@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.georchestra.ds.DataServiceException;
 import org.georchestra.ds.DuplicatedCommonNameException;
@@ -46,6 +45,7 @@ import org.georchestra.security.model.GeorchestraUser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.ldap.NameNotFoundException;
 
+import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 

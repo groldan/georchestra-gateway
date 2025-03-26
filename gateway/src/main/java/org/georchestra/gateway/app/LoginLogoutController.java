@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.annotation.PostConstruct;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.georchestra.gateway.security.GeorchestraGatewaySecurityConfigProperties;
 import org.georchestra.gateway.security.GeorchestraGatewaySecurityConfigProperties.Server;
@@ -36,6 +34,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Controller handling login and logout views for the geOrchestra gateway.

@@ -32,7 +32,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ class AccessRulesCustomizerTest {
     @Test
     void testCustomize_empty_config() {
         customizer.customize(http);
-        verify(http, atLeastOnce()).authorizeExchange(withDefaults());
+        verify(http, atLeastOnce()).authorizeExchange();
         verifyNoMoreInteractions(http);
     }
 
@@ -108,7 +107,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_EmptyInterceptUrls() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
         RoleBasedAccessRule rule = rule().setAnonymous(true);
 
         assertThrows(IllegalArgumentException.class, () -> customizer.apply(spec, rule),
@@ -117,7 +116,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_AuthorizeExchangeWithAntPatterns() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         RoleBasedAccessRule rule = rule("/test/**", "/page1");
         customizer = spy(customizer);
@@ -128,7 +127,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_anonymous() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         RoleBasedAccessRule rule = rule("/test/**", "/page1").setAnonymous(true);
         customizer = spy(customizer);
@@ -140,7 +139,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_anonymous_has_precedence_over_roles_list() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         RoleBasedAccessRule rule = rule("/test/**", "/page1").setAnonymous(true).setAllowedRoles(List.of("ROLE_ADMIN"));
         customizer = spy(customizer);
@@ -154,7 +153,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_authenticated() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         RoleBasedAccessRule rule = rule("/test/**", "/page1").setAnonymous(false);
         customizer = spy(customizer);
@@ -166,7 +165,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_roles() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         List<String> roles = List.of("ROLE_ADMIN", "ROLE_TESTER");
         RoleBasedAccessRule rule = rule("/test/**", "/page1").setAllowedRoles(roles);
@@ -179,7 +178,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_roles_prefix_added_if_missing() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
 
         List<String> roles = List.of("ADMIN", "TESTER");
         List<String> expected = List.of("ROLE_ADMIN", "ROLE_TESTER");
@@ -193,7 +192,7 @@ class AccessRulesCustomizerTest {
 
     @Test
     void testApplyRule_forbidden() {
-        AuthorizeExchangeSpec spec = http.authorizeExchange(withDefaults());
+        AuthorizeExchangeSpec spec = http.authorizeExchange();
         RoleBasedAccessRule rule = rule("/test/**", "/page1").setForbidden(true);
         customizer = spy(customizer);
         customizer.apply(spec, rule);

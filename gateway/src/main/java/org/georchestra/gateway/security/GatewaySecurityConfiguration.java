@@ -32,7 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity.LogoutSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
@@ -130,11 +129,11 @@ public class GatewaySecurityConfiguration {
         RedirectServerLogoutSuccessHandler defaultRedirect = new RedirectServerLogoutSuccessHandler();
         defaultRedirect.setLogoutSuccessUrl(URI.create(georchestraLogoutUrl));
 
-        LogoutSpec logoutSpec = http.formLogin(login -> login.loginPage("/login")).logout(logout -> logout
+        ServerHttpSecurity logoutSpec = http.formLogin(login -> login.loginPage("/login")).logout(logout -> logout
                 .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
                 .logoutSuccessHandler(oidcLogoutSuccessHandler != null ? oidcLogoutSuccessHandler : defaultRedirect));
 
-        return logoutSpec.and().build();
+        return logoutSpec.build();
     }
 
     /**
