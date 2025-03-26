@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.georchestra.gateway.security.GeorchestraGatewaySecurityConfigProperties;
